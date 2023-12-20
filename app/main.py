@@ -1,4 +1,6 @@
 from flask import Flask, Response
+from cassandra.cluster import Cluster
+from cassandra.auth import PlainTextAuthProvider
 
 
 app = Flask(__name__)
@@ -6,6 +8,9 @@ app = Flask(__name__)
 
 @app.get("/")
 def home():
+    cluster = Cluster(['dse'])
+    session = cluster.connect()
+
     return 'Raja Sharma'
 
 if __name__ == '__main__':

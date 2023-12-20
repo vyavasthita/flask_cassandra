@@ -1,22 +1,15 @@
 services:
-  backend:
-    build: ./app
-    ports:
-    - 5001:5001
-    container_name: app
-    volumes:
-      - ./app:/app
   # DataStax Enterprise
   dse:
     image: datastax/dse-server:6.0.2
-    container_name: cassandra_db
+    container_name: dse
     command: [ -s ]
     ports:
     - "9042:9042" # cassandra
     environment:
       DS_LICENSE: accept
     volumes:
-    - "./cassandra/data:/var/lib/cassandra"
+      - "./cassandra/db:/var/lib/cassandra:rw"
     # Allow DSE to lock memory with mlock
     cap_add:
     - IPC_LOCK
@@ -25,7 +18,7 @@ services:
 # One instance of DataStax Studio
   studio:
     image: datastax/dse-studio:6.0.0
-    container_name: cassandra_studio
+    container_name: studio
     ports:
     # The Web UI exposed to our host
     - "9091:9091"
@@ -35,3 +28,12 @@ services:
       DS_LICENSE: accept
     volumes:
     - "./cassandra/notebooks:/var/lib/datastax-studio"
+  backend:
+    build: ./app
+    ports:
+    - 5001:5001
+    container_name: app
+    depends_on:
+    - dse
+    volumes:
+      - ./app:/app
